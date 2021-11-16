@@ -7,7 +7,7 @@ Param(
   [Parameter(
       HelpMessage = "Execute SQL database restore"
   )]
-  [switch]$Restore
+  [switch]$Restore,
   [Parameter(
       HelpMessage = "Execute SQL database backup"
   )]
