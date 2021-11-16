@@ -7,12 +7,18 @@
 Parameters:
 
 ```powershell
-[Parameter(
-    HelpMessage = "Database name"
-)]
-[string]$DbName,
-[Parameter(
-    HelpMessage = "Execute sql database restore without performing backup"
-)]
-[switch]$Restore
+Param(
+  [Parameter(
+      HelpMessage = "Database name"
+  )]
+  [string]$DbName,
+  [Parameter(
+      HelpMessage = "Execute SQL database restore"
+  )]
+  [switch]$Restore
+  [Parameter(
+      HelpMessage = "Execute SQL database backup"
+  )]
+  [switch]$Backup
+)
 ```
