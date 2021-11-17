@@ -14,7 +14,14 @@ Param(
   [switch]$Backup
 )
 
+$available = Get-Module -ListAvailable -Name SQLPS | Out-Null
+
 Clear-Host
+
+if ($null -eq $available) {
+  Write-Error "SQLPS mmodule not available"
+  Exit 1
+}
 
 if(!$Backup -And ! $Restore) {
   Write-Error "-Backup or -Restore parameters are mandatory"
