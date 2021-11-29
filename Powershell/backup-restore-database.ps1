@@ -1,6 +1,10 @@
 ﻿[CmdletBinding()]
 Param(
   [Parameter(
+      HelpMessage = "Database server"
+  )]
+  [string]$DbServer = "localhost",
+  [Parameter(
       HelpMessage = "Database name"
   )]
   [string]$DbName,
@@ -26,15 +30,12 @@ if(!$Backup -And ! $Restore) {
   Exit 1
 }
 
-$server = "localhost"
-
 [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SMO') | out-null
-$s = New-Object ('Microsoft.SqlServer.Management.Smo.Server') $server 
+$srv = New-Object ('Microsoft.SqlServer.Management.Smo.Server') $DbServer
+$rs = New-Object('Microsoft.SqlServer.Management.Smo.Restore') $DbServer
 
-$backupPath = $s.Settings.BackupDirectory
-# $backupPath = "c:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\Backup\"
-$dbDataPath = $s.Settings.DefaultFile
-# $dbDataPath = "c:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\"
+$backupPath = $srv.Settings.BackupDirectory
+$dbDataPath = $srv.Settings.DefaultFile
 
 $configJson = ".\config.json"
 $credJson = $null
@@ -52,17 +53,15 @@ $cred = New-Object -TypeName System.Management.Automation.PSCredential -Argument
 
 $bakFullPath = "$backupPath\$DbName.bak"
 if($Backup) {
-  Write-Host "Backup database $DbName..." -NoNewline    
+  Write-Host "Backup database $DbServer => $DbName..." -NoNewline    
   if(Test-Path $bakFullPath) {        
       Remove-Item $bakFullPath -Force    
   }
-  Backup-SqlDatabase -ServerInstance $server -Database $DbName -Credential $cred -CompressionOption On -Initialize
+  Backup-SqlDatabase -ServerInstance $DbServer -Database $DbName -Credential $cred -CompressionOption On -Initialize
   Write-Host "[OK]"
 }
 
-if($Restore) {
-  $srv = New-Object ('Microsoft.SqlServer.Management.Smo.Server')
-  $rs = New-Object('Microsoft.SqlServer.Management.Smo.Restore')
+if($Restore) { 
   $bdi = New-Object ('Microsoft.SqlServer.Management.Smo.BackupDeviceItem') ($bakFullPath, 'File')
   $rs.Devices.Add($bdi)
   $fl = $rs.ReadFileList($srv)
@@ -77,9 +76,9 @@ if($Restore) {
       $srv.KillDatabase($DbName)
   }
 
-  $RelocateData = New-Object Microsoft.SqlServer.Management.Smo.RelocateFile($logname[0], "$dbDataPath\MotusTesting.mdf")
-  $RelocateLog = New-Object Microsoft.SqlServer.Management.Smo.RelocateFile($logname[1], "$dbDataPath\MotusTesting_Log.ldf")
-  Restore-SqlDatabase -ServerInstance localhost  -Credential $cred -Database "MotusTesting" -BackupFile "$DbName.bak" -RelocateFile @($RelocateData,$RelocateLog) -RestoreAction Database -ErrorAction Ignore -ReplaceDatabase
+  $RelocateData = New-Object Microsoft.SqlServer.Management.Smo.RelocateFile($logname[0], "$dbDataPath\$DbName.mdf")
+  $RelocateLog = New-Object Microsoft.SqlServer.Management.Smo.RelocateFile($logname[1], "$dbDataPath\$DbName_Log.ldf")
+  Restore-SqlDatabase -ServerInstance $DbServer -Credential $cred -Database "MotusTesting" -BackupFile "$DbName.bak" -RelocateFile @($RelocateData,$RelocateLog) -RestoreAction Database -ErrorAction Ignore -ReplaceDatabase
 
   Write-Host "[OK]"
 }
