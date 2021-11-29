@@ -30,7 +30,7 @@ if(!$Backup -And ! $Restore) {
   Exit 1
 }
 
-[System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SMO') | out-null
+[System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SMO') | Out-Null
 $srv = New-Object ('Microsoft.SqlServer.Management.Smo.Server') $DbServer
 $rs = New-Object('Microsoft.SqlServer.Management.Smo.Restore')
 
