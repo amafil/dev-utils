@@ -27,8 +27,14 @@ if(!$Backup -And ! $Restore) {
 }
 
 $server = "localhost"
-$backupPath = "c:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\Backup\"
-$dbDataPath = "c:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\"
+
+[System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SMO') | out-null
+$s = New-Object ('Microsoft.SqlServer.Management.Smo.Server') $server 
+
+$backupPath = $s.Settings.BackupDirectory
+# $backupPath = "c:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\Backup\"
+$dbDataPath = $s.Settings.DefaultFile
+# $dbDataPath = "c:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\DATA\"
 
 $configJson = ".\config.json"
 $credJson = $null
