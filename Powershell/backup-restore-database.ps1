@@ -32,7 +32,7 @@ if(!$Backup -And ! $Restore) {
 
 [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SMO') | out-null
 $srv = New-Object ('Microsoft.SqlServer.Management.Smo.Server') $DbServer
-$rs = New-Object('Microsoft.SqlServer.Management.Smo.Restore') $DbServer
+$rs = New-Object('Microsoft.SqlServer.Management.Smo.Restore')
 
 $backupPath = $srv.Settings.BackupDirectory
 $dbDataPath = $srv.Settings.DefaultFile
